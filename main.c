@@ -514,13 +514,20 @@ int main(void)
 			nrf_gpio_pin_clear(LED0);
 			nrf_gpio_pin_set(LED1);
 		#endif
+		uint8_t m_last_value = 0x00;
     for (;;)
     {
 				if(m_connected) {
-					spi_write(m_whc_control);
+					if (m_whc_control != m_last_value) {
+						m_last_value = m_whc_control;
+						spi_write(m_whc_control);
+					}
 				} else {
+					if (m_last_value != 0) {
+						spi_write(m_whc_control);
+					}
 					m_whc_control = 0x00;
-					spi_write(m_whc_control);
+					m_last_value = m_whc_control;
 				}
 				power_manage();
     }

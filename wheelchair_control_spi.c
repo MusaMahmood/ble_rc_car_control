@@ -31,10 +31,10 @@ void spi_init(void) {
 		uint8_t errcode;
 		nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG(0);
 		spi_config.bit_order						= NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
-		spi_config.frequency						= NRF_DRV_SPI_FREQ_1M;
+		spi_config.frequency						= NRF_DRV_SPI_FREQ_125K;
 		spi_config.irq_priority					= APP_IRQ_PRIORITY_LOW;
 		spi_config.mode									= NRF_DRV_SPI_MODE_0; //CPOL = 0 (Active High); CPHA = 0
-		spi_config.miso_pin 						= NRF_DRV_SPI_PIN_NOT_USED;
+		spi_config.miso_pin 						= WHEELCHAIR_CONTROL_SPI_MISO;
 		spi_config.sck_pin 							= WHEELCHAIR_CONTROL_SPI_SCLK;
 		spi_config.mosi_pin 						= WHEELCHAIR_CONTROL_SPI_MOSI;
 		spi_config.ss_pin								= NRF_DRV_SPI_PIN_NOT_USED;
@@ -49,6 +49,9 @@ uint8_t spi_write(uint8_t data) {
 	uint8_t data_array[1] = { data };
 	errcode = nrf_drv_spi_transfer(&spi, data_array, 1, NULL, 0);
 	nrf_delay_ms(50);
+	//if (errcode != 0) {
+		NRF_LOG_PRINTF(" SPI TX Errcode = [%d] \r\n",errcode);
+	//}
 	return errcode;
 }
 
