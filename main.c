@@ -29,7 +29,6 @@
 #include "softdevice_handler.h"
 #include "app_timer.h"
 #include "app_button.h"
-//#include "ble_lbs.h"
 #include "ble_wcc.h"
 #include "wheelchair_control_spi.h"
 #include "bsp.h"
@@ -49,7 +48,7 @@
 #define APP_TIMER_OP_QUEUE_SIZE         4                                           /**< Size of timer operation queues. */
 
 #define MIN_CONN_INTERVAL               MSEC_TO_UNITS(10, UNIT_1_25_MS)            /**< Minimum acceptable connection interval (0.5 seconds). */
-#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(50, UNIT_1_25_MS)            /**< Maximum acceptable connection interval (1 second). */
+#define MAX_CONN_INTERVAL               MSEC_TO_UNITS(25, UNIT_1_25_MS)            /**< Maximum acceptable connection interval (1 second). */
 #define SLAVE_LATENCY                   0                                           /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)             /**< Connection supervisory time-out (4 seconds). */
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(20000, APP_TIMER_PRESCALER) /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
@@ -94,10 +93,10 @@ static void gpio_init(void)
 		nrf_gpio_cfg_output(LED1);
 		nrf_gpio_cfg_output(LED2);
 		nrf_gpio_cfg_output(LED3);
-		nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS1);
-		nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS2);
-		nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS1);
-		nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS2);
+		//nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS1);
+		//nrf_gpio_cfg_output(WHEELCHAIR_CONTROL_SPI_CS2);
+		//nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS1);
+		//nrf_gpio_pin_set(WHEELCHAIR_CONTROL_SPI_CS2);
 		nrf_gpio_pin_clear(LED0);
 		nrf_gpio_pin_clear(LED1);
 		nrf_gpio_pin_clear(LED2);
@@ -505,7 +504,7 @@ int main(void)
     //Start Advertising
     advertising_start();
 		//Initialize vars:
-		wheelchair_reset_init();
+		spi_write(0x00);
 		nrf_delay_ms(50);
 		//Ready
 		#if defined(BOARD_WHC_CTRL_V1)
@@ -518,20 +517,10 @@ int main(void)
     for (;;)
     {
 				if(m_connected) {
-						if( m_whc_control == 0x00 ) {
-							wheelchair_reset_init();
-						} else if (m_whc_control == 0x01) {
-							wheelchair_set_forward();
-						} else if (m_whc_control == 0x0F) {
-							wheelchair_set_left();							
-						} else if (m_whc_control == 0xF0) {
-							wheelchair_set_right();
-						} else if (m_whc_control == 0xFF) {
-							wheelchair_set_reverse();							
-						}
+					spi_write(m_whc_control);
 				} else {
 					m_whc_control = 0x00;
-					wheelchair_reset_init();
+					spi_write(m_whc_control);
 				}
 				power_manage();
     }

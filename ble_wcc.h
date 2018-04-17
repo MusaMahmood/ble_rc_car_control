@@ -101,6 +101,7 @@ uint32_t ble_wcc_on_button_change(ble_lbs_t * p_lbs, uint8_t button_state);
 /**@brief Function for sending a data packet notification.
  */
 uint32_t ble_wcc_data_send(ble_lbs_t * p_lbs, uint8_t data[20]);
+
 #endif // BLE_LBS_H__
 
 /** @} */
